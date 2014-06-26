@@ -11,6 +11,9 @@ AM_CFLAGS = \
 	-I$(top_srcdir)/src/droid \
 	-I$(top_srcdir)/src/common
 
+if HAVE_UDEV
+AM_CFLAGS += -DHAVE_UDEV=1
+endif
 
 modlibexec_LTLIBRARIES = \
 	libdroid-sink.la \
@@ -51,3 +54,9 @@ module_droid_card_la_SOURCES = module-droid-card.c
 module_droid_card_la_LDFLAGS = -module -avoid-version -Wl,-z,noexecstack -lhybris-common
 module_droid_card_la_LIBADD = $(AM_LIBADD) -lm libdroid-sink.la libdroid-source.la $(top_builddir)/src/common/libdroid-util.la
 module_droid_card_la_CFLAGS = $(AM_CFLAGS)
+
+if HAVE_UDEV
+module_droid_card_la_SOURCES += droid-extcon.c droid-extcon.h
+module_droid_card_la_LIBADD += $(UDEV_LIBS)
+module_droid_card_la_CFLAGS += $(UDEV_CFLAGS)
+endif
