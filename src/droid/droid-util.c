@@ -809,9 +809,7 @@ static void add_i_ports(pa_droid_mapping *am) {
         if (devices & cur_device) {
 
 #ifdef HAL_V2
-#ifndef DROID_DEVICE_MAKO
             cur_device |= AUDIO_DEVICE_BIT_IN;
-#endif
 #endif
 
             pa_assert_se(pa_droid_input_port_name(cur_device, &name));
