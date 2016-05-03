@@ -43,14 +43,17 @@
 
 #include "droid-util.h"
 
+/* If device is non-zero, it will override whatever is set in modargs for input device. */
 pa_source *pa_droid_source_new(pa_module *m,
                                  pa_modargs *ma,
                                  const char *driver,
+                                 audio_devices_t device,
                                  pa_droid_card_data *card_data,
                                  pa_droid_mapping *am,
                                  pa_card *card);
 void pa_droid_source_free(pa_source *s);
 
 void pa_droid_source_set_routing(pa_source *s, bool enabled);
+int pa_droid_source_set_port(pa_source *s, pa_device_port *p);
 
 #endif

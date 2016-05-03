@@ -19,14 +19,21 @@
  * USA.
  */
 
-#ifndef _ANDROID_UTIL_V42_H_
-#define _ANDROID_UTIL_V42_H_
+#ifndef _ANDROID_UTIL_V412_H_
+#define _ANDROID_UTIL_V412_H_
 
-#define HAL_V2
+#define DROID_HAL 1
+
+#ifdef DROID_DEVICE_SBJ
+#define QCOM_HARDWARE
+#endif
+
+#include <hardware/audio.h>
+#include <hardware_legacy/audio_policy_conf.h>
 
 // PulseAudio value    -    Android value
 
-static uint32_t conversion_table_output_channel[][2] = {
+uint32_t conversion_table_output_channel[][2] = {
     { PA_CHANNEL_POSITION_MONO,                     AUDIO_CHANNEL_OUT_MONO },
     { PA_CHANNEL_POSITION_FRONT_LEFT,               AUDIO_CHANNEL_OUT_FRONT_LEFT },
     { PA_CHANNEL_POSITION_FRONT_RIGHT,              AUDIO_CHANNEL_OUT_FRONT_RIGHT},
@@ -48,7 +55,7 @@ static uint32_t conversion_table_output_channel[][2] = {
     { PA_CHANNEL_POSITION_TOP_REAR_RIGHT,           AUDIO_CHANNEL_OUT_TOP_BACK_RIGHT }
 };
 
-static uint32_t conversion_table_input_channel[][2] = {
+uint32_t conversion_table_input_channel[][2] = {
     { PA_CHANNEL_POSITION_MONO,                     AUDIO_CHANNEL_IN_MONO },
     { PA_CHANNEL_POSITION_FRONT_LEFT,               AUDIO_CHANNEL_IN_LEFT },
     { PA_CHANNEL_POSITION_FRONT_RIGHT,              AUDIO_CHANNEL_IN_RIGHT},
@@ -67,11 +74,15 @@ static uint32_t conversion_table_input_channel[][2] = {
     { AUDIO_CHANNEL_IN_VOICE_DNLINK,                AUDIO_CHANNEL_IN_VOICE_DNLINK }
 };
 
-static uint32_t conversion_table_format[][2] = {
+uint32_t conversion_table_format[][2] = {
     { PA_SAMPLE_U8,             AUDIO_FORMAT_PCM_8_BIT },
     { PA_SAMPLE_S16LE,          AUDIO_FORMAT_PCM_16_BIT },
     { PA_SAMPLE_S32LE,          AUDIO_FORMAT_PCM_32_BIT },
     { PA_SAMPLE_S24LE,          AUDIO_FORMAT_PCM_8_24_BIT }
+};
+
+uint32_t conversion_table_default_audio_source[][2] = {
+    { AUDIO_DEVICE_IN_ALL,                          AUDIO_SOURCE_DEFAULT }
 };
 
 struct string_conversion {
@@ -79,12 +90,12 @@ struct string_conversion {
     const char *str;
 };
 
-#if defined(STRING_ENTRY)
+#if defined(STRING_ENTRY) || defined(STRING_ENTRY)
 #error STRING_ENTRY already defined somewhere, fix this lib.
 #endif
 #define STRING_ENTRY(str) { str, #str }
 /* Output devices */
-static struct string_conversion string_conversion_table_output_device[] = {
+struct string_conversion string_conversion_table_output_device[] = {
     STRING_ENTRY(AUDIO_DEVICE_OUT_EARPIECE),
     STRING_ENTRY(AUDIO_DEVICE_OUT_SPEAKER),
     STRING_ENTRY(AUDIO_DEVICE_OUT_WIRED_HEADSET),
@@ -100,8 +111,11 @@ static struct string_conversion string_conversion_table_output_device[] = {
     STRING_ENTRY(AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET),
     STRING_ENTRY(AUDIO_DEVICE_OUT_USB_ACCESSORY),
     STRING_ENTRY(AUDIO_DEVICE_OUT_USB_DEVICE),
-    STRING_ENTRY(AUDIO_DEVICE_OUT_REMOTE_SUBMIX),
-    STRING_ENTRY(AUDIO_DEVICE_OUT_DEFAULT),
+    STRING_ENTRY(AUDIO_DEVICE_OUT_FM),
+    STRING_ENTRY(AUDIO_DEVICE_OUT_FM_TX),
+    STRING_ENTRY(AUDIO_DEVICE_OUT_ANC_HEADSET),
+    STRING_ENTRY(AUDIO_DEVICE_OUT_ANC_HEADPHONE),
+    STRING_ENTRY(AUDIO_DEVICE_OUT_PROXY),
     STRING_ENTRY(AUDIO_DEVICE_OUT_ALL),
     STRING_ENTRY(AUDIO_DEVICE_OUT_ALL_A2DP),
     STRING_ENTRY(AUDIO_DEVICE_OUT_ALL_SCO),
@@ -109,7 +123,7 @@ static struct string_conversion string_conversion_table_output_device[] = {
     { 0, NULL }
 };
 
-static struct string_conversion string_conversion_table_output_device_fancy[] = {
+struct string_conversion string_conversion_table_output_device_fancy[] = {
     { AUDIO_DEVICE_OUT_EARPIECE,                    "output-earpiece" },
     { AUDIO_DEVICE_OUT_SPEAKER,                     "output-speaker" },
     { AUDIO_DEVICE_OUT_SPEAKER
@@ -127,40 +141,16 @@ static struct string_conversion string_conversion_table_output_device_fancy[] = 
     { AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET,           "output-digital_dock_headset" },
     { AUDIO_DEVICE_OUT_USB_ACCESSORY,               "output-usb_accessory" },
     { AUDIO_DEVICE_OUT_USB_DEVICE,                  "output-usb_device" },
-    { AUDIO_DEVICE_OUT_REMOTE_SUBMIX,               "output-remote_submix" },
+    { AUDIO_DEVICE_OUT_FM,                          "output-fm" },
+    { AUDIO_DEVICE_OUT_FM_TX,                       "output-fm_tx" },
+    { AUDIO_DEVICE_OUT_ANC_HEADSET,                 "output-anc_headset" },
+    { AUDIO_DEVICE_OUT_ANC_HEADPHONE,               "output-anc_headphone" },
+    { AUDIO_DEVICE_OUT_PROXY,                       "output-proxy" },
     { 0, NULL }
 };
 
 /* Input devices */
-#ifdef DROID_DEVICE_MAKO
-static struct string_conversion string_conversion_table_input_device[] = {
-    { 0x10000,      "AUDIO_DEVICE_IN_COMMUNICATION" },
-    { 0x20000,      "AUDIO_DEVICE_IN_AMBIENT" },
-    { 0x40000,      "AUDIO_DEVICE_IN_BUILTIN_MIC" },
-    { 0x80000,      "AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET" },
-    { 0x100000,     "AUDIO_DEVICE_IN_WIRED_HEADSET" },
-    { 0x200000,     "AUDIO_DEVICE_IN_AUX_DIGITAL" },
-    { 0x400000,     "AUDIO_DEVICE_IN_VOICE_CALL" },
-    { 0x800000,     "AUDIO_DEVICE_IN_BACK_MIC" },
-    { 0x80000000,   "AUDIO_DEVICE_IN_DEFAULT" },
-    { 0x80000000,   "AUDIO_DEVICE_IN_REMOTE_SUBMIX" }, // What's this really??
-    { 0, NULL }
-};
-
-static struct string_conversion string_conversion_table_input_device_fancy[] = {
-    { 0x10000,      "input-communication" },
-    { 0x20000,      "input-ambient" },
-    { 0x40000,      "input-builtin_mic" },
-    { 0x80000,      "input-bluetooth_sco_headset" },
-    { 0x100000,     "input-wired_headset" },
-    { 0x200000,     "input-aux_digital" },
-    { 0x400000,     "input-voice_call" },
-    { 0x800000,     "input-back_mic" },
-    { 0x80000000,   "input-remote_submix" },
-    { 0, NULL }
-};
-#else
-static struct string_conversion string_conversion_table_input_device[] = {
+struct string_conversion string_conversion_table_input_device[] = {
     STRING_ENTRY(AUDIO_DEVICE_IN_COMMUNICATION),
     STRING_ENTRY(AUDIO_DEVICE_IN_AMBIENT),
     STRING_ENTRY(AUDIO_DEVICE_IN_BUILTIN_MIC),
@@ -169,15 +159,19 @@ static struct string_conversion string_conversion_table_input_device[] = {
     STRING_ENTRY(AUDIO_DEVICE_IN_AUX_DIGITAL),
     STRING_ENTRY(AUDIO_DEVICE_IN_VOICE_CALL),
     STRING_ENTRY(AUDIO_DEVICE_IN_BACK_MIC),
-    STRING_ENTRY(AUDIO_DEVICE_IN_REMOTE_SUBMIX),
-    STRING_ENTRY(AUDIO_DEVICE_IN_ANLG_DOCK_HEADSET),
-    STRING_ENTRY(AUDIO_DEVICE_IN_DGTL_DOCK_HEADSET),
-    STRING_ENTRY(AUDIO_DEVICE_IN_USB_ACCESSORY),
-    STRING_ENTRY(AUDIO_DEVICE_IN_USB_DEVICE),
+    STRING_ENTRY(AUDIO_DEVICE_IN_ANC_HEADSET),
+    STRING_ENTRY(AUDIO_DEVICE_IN_FM_RX),
+    STRING_ENTRY(AUDIO_DEVICE_IN_FM_RX_A2DP),
+    STRING_ENTRY(AUDIO_DEVICE_IN_PROXY),
+    STRING_ENTRY(AUDIO_DEVICE_IN_DEFAULT),
+    /* Combination entries consisting of multiple devices defined above.
+     * These don't require counterpart in string_conversion_table_input_device_fancy. */
+    STRING_ENTRY(AUDIO_DEVICE_IN_ALL),
+    STRING_ENTRY(AUDIO_DEVICE_IN_ALL_SCO),
     { 0, NULL }
 };
 
-static struct string_conversion string_conversion_table_input_device_fancy[] = {
+struct string_conversion string_conversion_table_input_device_fancy[] = {
     { AUDIO_DEVICE_IN_COMMUNICATION,            "input-communication" },
     { AUDIO_DEVICE_IN_AMBIENT,                  "input-ambient" },
     { AUDIO_DEVICE_IN_BUILTIN_MIC,              "input-builtin_mic" },
@@ -186,23 +180,44 @@ static struct string_conversion string_conversion_table_input_device_fancy[] = {
     { AUDIO_DEVICE_IN_AUX_DIGITAL,              "input-aux_digital" },
     { AUDIO_DEVICE_IN_VOICE_CALL,               "input-voice_call" },
     { AUDIO_DEVICE_IN_BACK_MIC,                 "input-back_mic" },
-    { AUDIO_DEVICE_IN_REMOTE_SUBMIX,            "input-remote_submix" },
+    { AUDIO_DEVICE_IN_ANC_HEADSET,              "input-anc_headset" },
+    { AUDIO_DEVICE_IN_FM_RX,                    "input-fm_rx" },
+    { AUDIO_DEVICE_IN_FM_RX_A2DP,               "input-fm_rx_a2dp" },
+    { AUDIO_DEVICE_IN_PROXY,                    "input-in_proxy" },
+    { AUDIO_DEVICE_IN_DEFAULT,                  "input-default" },
     { 0, NULL }
 };
-#endif
+
+struct string_conversion string_conversion_table_audio_source_fancy[] = {
+    { AUDIO_SOURCE_DEFAULT,                         "default" },
+    { AUDIO_SOURCE_MIC,                             "mic" },
+    { AUDIO_SOURCE_VOICE_UPLINK,                    "voice uplink" },
+    { AUDIO_SOURCE_VOICE_DOWNLINK,                  "voice downlink" },
+    { AUDIO_SOURCE_VOICE_CALL,                      "voice call" },
+    { AUDIO_SOURCE_CAMCORDER,                       "camcorder" },
+    { AUDIO_SOURCE_VOICE_RECOGNITION,               "voice recognition" },
+    { AUDIO_SOURCE_VOICE_COMMUNICATION,             "voice communication" },
+    { AUDIO_SOURCE_FM_RX,                           "fm rx" },
+    { AUDIO_SOURCE_FM_RX_A2DP,                      "fm rx a2dp" },
+    { (uint32_t)-1, NULL }
+};
 
 /* Flags */
-static struct string_conversion string_conversion_table_flag[] = {
+struct string_conversion string_conversion_table_output_flag[] = {
     STRING_ENTRY(AUDIO_OUTPUT_FLAG_NONE),
     STRING_ENTRY(AUDIO_OUTPUT_FLAG_DIRECT),
     STRING_ENTRY(AUDIO_OUTPUT_FLAG_PRIMARY),
     STRING_ENTRY(AUDIO_OUTPUT_FLAG_FAST),
     STRING_ENTRY(AUDIO_OUTPUT_FLAG_DEEP_BUFFER),
+    /* Qualcomm flags */
+    STRING_ENTRY(AUDIO_OUTPUT_FLAG_LPA),
+    STRING_ENTRY(AUDIO_OUTPUT_FLAG_TUNNEL),
+    STRING_ENTRY(AUDIO_OUTPUT_FLAG_VOIP_RX),
     { 0, NULL }
 };
 
 /* Channels */
-static struct string_conversion string_conversion_table_output_channels[] = {
+struct string_conversion string_conversion_table_output_channels[] = {
     STRING_ENTRY(AUDIO_CHANNEL_OUT_FRONT_LEFT),
     STRING_ENTRY(AUDIO_CHANNEL_OUT_FRONT_RIGHT),
     STRING_ENTRY(AUDIO_CHANNEL_OUT_FRONT_CENTER),
@@ -230,7 +245,7 @@ static struct string_conversion string_conversion_table_output_channels[] = {
     STRING_ENTRY(AUDIO_CHANNEL_OUT_ALL),
     { 0, NULL }
 };
-static struct string_conversion string_conversion_table_input_channels[] = {
+struct string_conversion string_conversion_table_input_channels[] = {
     STRING_ENTRY(AUDIO_CHANNEL_IN_LEFT),
     STRING_ENTRY(AUDIO_CHANNEL_IN_RIGHT),
     STRING_ENTRY(AUDIO_CHANNEL_IN_FRONT),
@@ -247,12 +262,16 @@ static struct string_conversion string_conversion_table_input_channels[] = {
     STRING_ENTRY(AUDIO_CHANNEL_IN_VOICE_DNLINK),
     STRING_ENTRY(AUDIO_CHANNEL_IN_MONO),
     STRING_ENTRY(AUDIO_CHANNEL_IN_STEREO),
+    STRING_ENTRY(AUDIO_CHANNEL_IN_5POINT1),
+    STRING_ENTRY(AUDIO_CHANNEL_IN_VOICE_UPLINK_MONO),
+    STRING_ENTRY(AUDIO_CHANNEL_IN_VOICE_DNLINK_MONO),
+    STRING_ENTRY(AUDIO_CHANNEL_IN_VOICE_CALL_MONO),
     STRING_ENTRY(AUDIO_CHANNEL_IN_ALL),
     { 0, NULL }
 };
 
 /* Formats */
-static struct string_conversion string_conversion_table_format[] = {
+struct string_conversion string_conversion_table_format[] = {
     STRING_ENTRY(AUDIO_FORMAT_DEFAULT),
     STRING_ENTRY(AUDIO_FORMAT_PCM),
     STRING_ENTRY(AUDIO_FORMAT_MP3),
@@ -262,8 +281,21 @@ static struct string_conversion string_conversion_table_format[] = {
     STRING_ENTRY(AUDIO_FORMAT_HE_AAC_V1),
     STRING_ENTRY(AUDIO_FORMAT_HE_AAC_V2),
     STRING_ENTRY(AUDIO_FORMAT_VORBIS),
-    STRING_ENTRY(AUDIO_FORMAT_MAIN_MASK),
-    STRING_ENTRY(AUDIO_FORMAT_SUB_MASK),
+    STRING_ENTRY(AUDIO_FORMAT_EVRC),
+    STRING_ENTRY(AUDIO_FORMAT_QCELP),
+    STRING_ENTRY(AUDIO_FORMAT_AC3),
+    STRING_ENTRY(AUDIO_FORMAT_AC3_PLUS),
+    STRING_ENTRY(AUDIO_FORMAT_DTS),
+    STRING_ENTRY(AUDIO_FORMAT_WMA),
+    STRING_ENTRY(AUDIO_FORMAT_WMA_PRO),
+    STRING_ENTRY(AUDIO_FORMAT_AAC_ADIF),
+    STRING_ENTRY(AUDIO_FORMAT_EVRCB),
+    STRING_ENTRY(AUDIO_FORMAT_EVRCWB),
+    STRING_ENTRY(AUDIO_FORMAT_EAC3),
+    STRING_ENTRY(AUDIO_FORMAT_DTS_LBR),
+    STRING_ENTRY(AUDIO_FORMAT_AMR_WB_PLUS),
+    /* Currently we support only PCM formats, but keep all formats
+     * here so audio_policy.conf can be parsed. */
     STRING_ENTRY(AUDIO_FORMAT_PCM_16_BIT),
     STRING_ENTRY(AUDIO_FORMAT_PCM_8_BIT),
     STRING_ENTRY(AUDIO_FORMAT_PCM_32_BIT),

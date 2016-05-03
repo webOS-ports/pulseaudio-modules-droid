@@ -50,12 +50,19 @@ PA_MODULE_VERSION(PACKAGE_VERSION);
 
 static const char* const valid_modargs[] = {
     "rate",
+    "format",
+    "channels",
+    "channel_map",
+    "sink_rate",
+    "sink_format",
+    "sink_channel_map",
     "flags",
-    "devices",
+    "output_devices",
     "sink_name",
     "module_id",
     "mute_routing_before",
     "mute_routing_after",
+    "prewrite_on_resume",
     "sink_buffer",
     "deferred_volume",
     "voice_property_key",
@@ -74,15 +81,24 @@ void pa__done(pa_module *m) {
 
 int pa__init(pa_module *m) {
     pa_modargs *ma = NULL;
+    const char *flags_str;
+    audio_output_flags_t flags = 0;
 
     pa_assert(m);
 
     if (!(ma = pa_modargs_new(m->argument, valid_modargs))) {
-        pa_log("Failed to parse module argumets.");
+        pa_log("Failed to parse module arguments.");
         goto fail;
     }
 
-    if (!(m->userdata = pa_droid_sink_new(m, ma, __FILE__, NULL, 0, NULL, NULL)))
+    if ((flags_str = pa_modargs_get_value(ma, "flags", NULL))) {
+        if (!pa_string_convert_flag_str_to_num(flags_str, &flags)) {
+            pa_log("Failed to parse flags");
+            goto fail;
+        }
+    }
+
+    if (!(m->userdata = pa_droid_sink_new(m, ma, __FILE__, NULL, flags, NULL, NULL)))
         goto fail;
 
     pa_modargs_free(ma);

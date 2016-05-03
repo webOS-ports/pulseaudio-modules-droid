@@ -1,8 +1,9 @@
+%define device sbj
 %define pulseversion %{expand:%(rpm -q --qf '[%%{version}]' pulseaudio)}
 %define pulsemajorminor %{expand:%(echo '%{pulseversion}' | cut -d+ -f1)}
 %define moduleversion %{pulsemajorminor}.%{expand:%(echo '%{version}' | cut -d. -f3)}
 
-Name:       pulseaudio-modules-droid
+Name:       pulseaudio-modules-droid-%{device}
 
 Summary:    PulseAudio Droid HAL modules
 Version:    %{pulsemajorminor}.47
@@ -20,6 +21,7 @@ BuildRequires:  pkgconfig(pulsecore) >= %{pulsemajorminor}
 BuildRequires:  pkgconfig(android-headers)
 BuildRequires:  pkgconfig(libhardware)
 BuildRequires:  pkgconfig(dbus-1)
+Provides: pulseaudio-modules-droid
 
 %description
 PulseAudio Droid HAL modules.
@@ -46,9 +48,7 @@ This contains development files for PulseAudio droid modules.
 
 %build
 echo "%{moduleversion}" > .tarball-version
-# Obtain the DEVICE from the same source as used in /etc/os-release
-. /usr/lib/droid-devel/hw-release.vars
-%reconfigure --disable-static --with-droid-device=$MER_HA_DEVICE
+%reconfigure --disable-static --with-droid-device=%{device}
 make %{?jobs:-j%jobs}
 
 %install
